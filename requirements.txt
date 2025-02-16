@@ -15,7 +15,7 @@ pykeyboard
 #pyrogram==2.0.106
 pyrofork
 python-dotenv
-pyyaml
+pyyaml==6.0.1
 requests
 speedtest-cli
 spotipy
@@ -26,4 +26,37 @@ youtube-search
 youtube-search-python
 pymongo==4.6.3
 httpx[http2]==0.27.2
-faker
+faker  # Added this line to fix the error
+bard
+SpeechRecognition
+pornhub-api==0.2.0
+daxxhub
+deepai
+python-whois
+apscheduler
+numpy
+pillow==9.5.0  # Keeping both versions might cause conflicts
+wget
+pyfiglet
+qrcode
+pytz
+future==0.18.3
+search_engine_parser
+pyshorteners
+pyrogram==2.0.106
+emojis
+telegraph
+gtts
+git+https://github.com/AsmSafone/SafoneAPI
+lexica-api==1.5.1
+httpx==0.25.2
+gpytranslate
+openai==0.28.0
+pickledb
+python-telegram-bot==20.7
+img2pdf
+cloudscraper
+pycryptodome
+opencv-python
+pydub
+pycountry
