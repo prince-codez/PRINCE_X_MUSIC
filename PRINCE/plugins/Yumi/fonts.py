@@ -1,7 +1,7 @@
 from pyrogram import  filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from PRINCE.utils.SACHIN_font import Fonts
+from PRINCE.utils.PRINCE_font import Fonts
 from PRINCE import app
 
 @app.on_message(filters.command(["font", "fonts"]))
