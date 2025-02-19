@@ -1,30 +1,52 @@
 from pyrogram import Client, filters
-from faker import Faker
-from PRINCE import app
+from pyrogram.types import Message
+from datetime import datetime, timedelta
 
-fake = Faker()
+# Pyrogram Client Initialize
+app = Client("my_bot")
 
-@app.on_message(filters.command("fakeinfo"))
-async def generate_info(client, message):
- 
-    name = fake.name()
-    address = fake.address()
-    country = fake.country()
-    phone_number = fake.phone_number()
-    email = fake.email()
-    city = fake.city()
-    state = fake.state()
-    zipcode = fake.zipcode()
+# Date to Day Command Handler
+@app.on_message(filters.command("day"))
+async def date_to_day_command(client: Client, message: Message):
+    try:
+        command_parts = message.text.split(" ", 2)
+        
+        if len(command_parts) == 1:
+            await message.reply_text("⚠️ Usage: ➪ `/day YYYY-MM-DD`\n✅ Example: `/day 1947-08-15`")
+            return
+        
+        input_date = command_parts[1].strip().replace("/", "-")  # Auto format correction
 
-    info_message = (
-        f"ғᴜʟʟ ɴᴀᴍᴇ ➪  {name}\n"
-        f"𝐀ᴅᴅʀᴇss ➪ {address}\n"
-        f"𝐂ᴏᴜɴᴛʀʏ ➪ {country}\n"
-        f"𝐏ʜᴏɴᴇ ɴᴜᴍʙᴇʀ ➪ {phone_number}\n"
-        f"𝐄-ᴍᴀɪʟ ➪ {email}\n"
-        f"𝐂ɪᴛʏ ➪ {city}\n"
-        f"𝐒ᴛᴀᴛᴇ ➪ {state}\n"
-        f"𝐙ɪᴘ ᴄᴏᴅᴇ ➪ {zipcode}"
-    )
+        if input_date.lower() == "today":
+            date_object = datetime.today()
+        else:
+            try:
+                date_object = datetime.strptime(input_date, "%Y-%m-%d")
+            except ValueError:
+                await message.reply_text("❌ Invalid format! 𝐔sᴇ `/day YYYY-MM-DD` (Example: `/day 1947-08-15`).")
+                return
+        
+        # Check if extra argument is given
+        if len(command_parts) == 3:
+            option = command_parts[2].strip().lower()
 
-    await message.reply_text(info_message)  
+            if option == "diff":  # Calculate Difference from Today
+                today = datetime.today()
+                diff_days = abs((today - date_object).days)
+                await message.reply_text(f"📅 𝐃ᴀᴛᴇ ➪ {date_object.strftime('%Y-%m-%d')}\n🗓 𝐃ᴀʏ ➪ {date_object.strftime('%A')}\n⏳ ᴅᴀʏs 𝐃ɪғғᴇʀᴇɴᴄᴇ ➪ {diff_days} 𝐃ᴀʏs")
+                return
+            
+            elif option == "next":  # Get Next Day
+                date_object += timedelta(days=1)
+            
+            elif option == "prev":  # Get Previous Day
+                date_object -= timedelta(days=1)
+
+        # Final Output
+        await message.reply_text(f"📅 𝐃ᴀᴛᴇ  ➪ {date_object.strftime('%Y-%m-%d')}\n🗓 𝐃ᴀʏ {date_object.strftime('%A')}")
+
+    except Exception as e:
+        await message.reply_text(f"🚨 Error: {str(e)}")
+
+# Run the bot
+app.run()
