@@ -30,3 +30,4 @@ pyrogram
 pyfiglet
 whois
 qrcode
+wget
