@@ -2,8 +2,8 @@ import requests
 from PRINCE import app
 from pyrogram import filters
 
-# API Endpoint
-API_URL = "https://ddg-api.herokuapp.com/search"
+# ✅ Official DuckDuckGo API
+API_URL = "https://api.duckduckgo.com/"
 
 @app.on_message(filters.command("bingsearch"))
 async def bing_search(bot, message):
@@ -13,26 +13,33 @@ async def bing_search(bot, message):
             await message.reply_text("⚠️ Please provide a keyword to search.")
             return
         
-        # Extracting search query from the command
+        # Extract search query
         keyword = " ".join(message.command[1:])
-        params = {"query": keyword}
+        params = {"q": keyword, "format": "json"}
 
-        # Sending request to API
+        # API Request
         response = requests.get(API_URL, params=params)
-        
-        # Checking API response
+
+        # Check if API responded successfully
         if response.status_code == 200:
-            results = response.json()
+            data = response.json()
+            results = data.get("RelatedTopics", [])
+
             if not results:
                 await message.reply_text("❌ No results found.")
                 return
-            
+
             # Formatting results
             message_text = f"🔎 **Search Results for:** `{keyword}`\n\n"
-            for result in results[:7]:  # Limiting to top 7 results
-                title = result.get("title", "No Title")
-                link = result.get("link", "#")
-                message_text += f"🔹 [{title}]({link})\n"
+            count = 0
+            for result in results:
+                if "Text" in result and "FirstURL" in result:
+                    title = result["Text"]
+                    link = result["FirstURL"]
+                    message_text += f"🔹 [{title}]({link})\n"
+                    count += 1
+                    if count == 7:  # Limit to 7 results
+                        break
             
             await message.reply_text(message_text, disable_web_page_preview=True)
         else:
