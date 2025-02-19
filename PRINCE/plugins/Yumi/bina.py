@@ -1,37 +1,42 @@
+import requests
 from PRINCE import app
-import requests as r
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram import filters
 
-API_URL = "https://sugoi-api.vercel.app/search"
+# API Endpoint
+API_URL = "https://ddg-api.herokuapp.com/search"
 
 @app.on_message(filters.command("bingsearch"))
-async def bing_search(client, message):
+async def bing_search(bot, message):
     try:
+        # Check if user provided a keyword
         if len(message.command) == 1:
-            await message.reply_text("🔍 **Please provide a keyword to search.**\n\nExample: `/bingsearch python tutorial`")
+            await message.reply_text("⚠️ Please provide a keyword to search.")
             return
-
+        
+        # Extracting search query from the command
         keyword = " ".join(message.command[1:])
-        params = {"keyword": keyword}
-        response = r.get(API_URL, params=params)
+        params = {"query": keyword}
 
+        # Sending request to API
+        response = requests.get(API_URL, params=params)
+        
+        # Checking API response
         if response.status_code == 200:
             results = response.json()
             if not results:
-                await message.reply_text("❌ **No results found.** Try another keyword.")
-            else:
-                buttons = []
-                for result in results[:5]:  # Top 5 results
-                    title = result.get("title", "Unknown Title")
-                    link = result.get("link", "#")
-                    buttons.append([InlineKeyboardButton(text=title, url=link)])
-
-                await message.reply_text(
-                    f"🔎 **Search Results for:** `{keyword}`",
-                    reply_markup=InlineKeyboardMarkup(buttons),
-                )
+                await message.reply_text("❌ No results found.")
+                return
+            
+            # Formatting results
+            message_text = f"🔎 **Search Results for:** `{keyword}`\n\n"
+            for result in results[:7]:  # Limiting to top 7 results
+                title = result.get("title", "No Title")
+                link = result.get("link", "#")
+                message_text += f"🔹 [{title}]({link})\n"
+            
+            await message.reply_text(message_text, disable_web_page_preview=True)
         else:
-            await message.reply_text("⚠️ **API Error: Failed to fetch results.**")
+            await message.reply_text("⚠️ API Error: Failed to fetch results.")
+    
     except Exception as e:
-        await message.reply_text(f"🚨 **An error occurred:** `{str(e)}`")
+        await message.reply_text(f"❌ Error: {str(e)}")
